@@ -1,0 +1,9 @@
+{
+  "GITHUB_AUTH_TOKEN": "TOKEN",
+  "SLACK_URL": "https://hooks.slack.com/services/TSOMETHING/SOMETHING/SOMETHING",
+  "CHECKS_DELAY": 60000,
+  "VALID_LABELS": ["ready for code review", "ready for testing"],
+  "IGNORE_WITH_TEXT": ["[wip]", "[blocked]", "[blocked by ", "[do no rebase]"],
+  "MANDATORY_TEXT": [],
+  "GITHUB_REPO": "bumbu/automatic-github-rebaser"
+}

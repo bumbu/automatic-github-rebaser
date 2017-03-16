@@ -1,0 +1,113 @@
+const rp = require('request-promise');
+
+class GithubData {
+  constructor(config) {
+    this.config = config;
+  }
+
+  getFormatedPRs() {
+    const prs = this._getPRs().then(this._formatPRs);
+    const issues = this._getIssues().then(this._formatIssues)
+    const branches = this._getBranches().then(this._formatBranches)
+    const mergedData = Promise.all([prs, issues, branches]).then(this._mergePRsAndIssues)
+    return mergedData
+  }
+
+  _getConfig(url) {
+    return {
+      uri: url,
+      qs: {
+        state: 'open',
+      },
+      headers: {
+        'Authorization': `token ${this.config.authToken}`,
+      },
+      json: true
+    }
+  }
+
+  // TODO pull all issues (pagination)
+  _getPRs() {
+    return rp(this._getConfig(this.config.urlPRs));
+  }
+
+  _formatPRs (prs) {
+    const formatedList = [];
+    for (let pr of prs) {
+      formatedList.push({
+        state: pr.state,
+        number: pr.number,
+        locked: pr.locked,
+        author: pr.user.login,
+        url: pr.html_url,
+        title: pr.title.toLowerCase(),
+        body: pr.body.toLowerCase(),
+        headSha: pr.head.sha,
+        baseSha: pr.base.sha,
+        headBranch: pr.head.ref,
+        baseBranch: pr.base.ref,
+      })
+    }
+    return formatedList;
+  }
+
+  // TODO pull all issues (pagination)
+  _getIssues() {
+    return rp(this._getConfig(this.config.urlIssue));
+  }
+
+  _formatIssues (issues) {
+    const formatedMap = {};
+    for (let issue of issues) {
+      formatedMap[issue.number] = {
+        number: issue.number,
+        labels: issue.labels.map((label) => label.name),
+      }
+    }
+    return formatedMap;
+  }
+
+  // TODO pull all branches (pagination)
+  _getBranches() {
+    return rp(this._getConfig(this.config.urlBranches));
+  }
+
+  _formatBranches(branches) {
+    const formatedMap = {};
+    for (let branch of branches) {
+      formatedMap[branch.name] = {
+        name: branch.name,
+        sha: branch.commit.sha,
+      }
+    }
+    return formatedMap;
+  }
+
+  _mergePRsAndIssues(data) {
+    const [prsList, issuesMap, branchesMap] = data;
+    const mergedData = prsList.map((pr) => Object.assign(
+      {},
+      pr,
+      issuesMap[pr.number],
+      { baseSha: branchesMap[pr.baseBranch].sha }
+    ))
+    return mergedData;
+  }
+
+  _setMergeability(pr) {
+    return rp(this._getConfig(`${this.config.urlPRs}/${pr.number}`))
+      .then((prData) => {
+        return Object.assign({}, pr, {mergeable: prData.mergeable});
+      })
+  }
+
+  getMergeabilityOfAll(prs) {
+    const promises = [];
+    for (let pr of prs) {
+      promises.push(this._setMergeability(pr));
+    }
+    return Promise.all(promises);
+  }
+}
+
+module.exports = GithubData

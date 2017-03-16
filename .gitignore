@@ -1,0 +1,6 @@
+node_modules/
+notifications.json
+rebase.log
+.DS_Store
+config.*
+!config.example.json
