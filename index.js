@@ -19,18 +19,7 @@ try {
 }
 
 const slack = new Slack({
-  githubToSlackMap: {
-    alexandrt: 'bumbu',
-    michalm: 'michalm',
-    richards: 'richards',
-    FrancescoD: 'francescod',
-    vitalijk: 'vitalijk',
-    sengjeal: 'sengjea',
-    danieleu: 'danieleu',
-    shays: 'shays',
-    joshuae: 'josha',
-    BarrieD: 'barried',
-  },
+  githubToSlackMap: config.GITHUB_TO_SLACK_USERNAMES,
   webHookUrl: config.SLACK_URL,
 })
 

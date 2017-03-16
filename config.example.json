@@ -5,6 +5,9 @@
   "VALID_LABELS": ["ready for code review", "ready for testing"],
   "IGNORE_WITH_TEXT": ["[wip]", "[blocked]", "[blocked by ", "[do no rebase]"],
   "MANDATORY_TEXT": [],
+  "GITHUB_TO_SLACK_USERNAMES": {
+    "alexandr": "bumbu",
+  },
   "GITHUB_REPO": "bumbu/automatic-github-rebaser",
   "GITHUB_DOMAIN": "api.github.com"
 }
