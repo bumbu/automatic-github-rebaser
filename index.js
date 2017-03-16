@@ -35,9 +35,9 @@ const slack = new Slack({
 })
 
 const githubService = new GithubService({
-  urlPRs: `https://github.thetrainline.com/api/v3/repos/${config.GITHUB_REPO}/pulls`,
-  urlIssue: `https://github.thetrainline.com/api/v3/repos/${config.GITHUB_REPO}/issues`,
-  urlBranches: `https://github.thetrainline.com/api/v3/repos/${config.GITHUB_REPO}/branches`,
+  urlPRs: `https://${config.GITHUB_DOMAIN}/repos/${config.GITHUB_REPO}/pulls`,
+  urlIssue: `https://${config.GITHUB_DOMAIN}/repos/${config.GITHUB_REPO}/issues`,
+  urlBranches: `https://${config.GITHUB_DOMAIN}/repos/${config.GITHUB_REPO}/branches`,
   authToken: config.GITHUB_AUTH_TOKEN,
 })
 
