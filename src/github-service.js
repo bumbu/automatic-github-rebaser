@@ -1,5 +1,47 @@
 const rp = require('request-promise');
 
+const _parseLinkHeader = (str) => {
+  const links = {}
+  const linksList = str.split(',').filter(e => e.trim())
+
+  for (let linkStr of linksList) {
+    const match = linkStr.match(/<([^\]]+)>; rel="(\w+)"/);
+    if (match && match.length > 2) {
+      links[match[2]] = match[1];
+    }
+  }
+
+  return links;
+}
+
+const _requestPromiseTransform = (body, xhrResponse, resolveWithFullResponse) => {
+  const response = {
+    data: null,
+    links: 'link' in xhrResponse.headers ? _parseLinkHeader(xhrResponse.headers.link) : {},
+  }
+
+  if (xhrResponse.headers['content-type'] === 'application/json') {
+    response.data = JSON.parse(body);
+  } else {
+    response.data = body;
+  }
+
+  return response
+}
+
+const _loadPaginatedData = (config, prevData = []) => {
+  return rp(config)
+    .then(({data, links}) => {
+      if ('next' in links) {
+        config.qs = {};
+        config.uri = links.next;
+        return _loadPaginatedData(config, prevData.concat(data))
+      } else {
+        return prevData.concat(data)
+      }
+    })
+}
+
 class GithubData {
   constructor(config) {
     this.config = config;
@@ -22,13 +64,13 @@ class GithubData {
       headers: {
         'Authorization': `token ${this.config.authToken}`,
       },
-      json: true
+      json: true,
+      transform: _requestPromiseTransform,
     }
   }
 
-  // TODO pull all issues (pagination)
   _getPRs() {
-    return rp(this._getConfig(this.config.urlPRs));
+    return _loadPaginatedData(this._getConfig(this.config.urlPRs));
   }
 
   _formatPRs (prs) {
@@ -51,9 +93,8 @@ class GithubData {
     return formatedList;
   }
 
-  // TODO pull all issues (pagination)
   _getIssues() {
-    return rp(this._getConfig(this.config.urlIssue));
+    return _loadPaginatedData(this._getConfig(this.config.urlIssue));
   }
 
   _formatIssues (issues) {
@@ -67,9 +108,8 @@ class GithubData {
     return formatedMap;
   }
 
-  // TODO pull all branches (pagination)
   _getBranches() {
-    return rp(this._getConfig(this.config.urlBranches));
+    return _loadPaginatedData(this._getConfig(this.config.urlBranches));
   }
 
   _formatBranches(branches) {
