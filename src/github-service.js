@@ -137,7 +137,7 @@ class GithubData {
   _setMergeability(pr) {
     return rp(this._getConfig(`${this.config.urlPRs}/${pr.number}`))
       .then((prData) => {
-        return Object.assign({}, pr, {mergeable: prData.mergeable});
+        return Object.assign({}, pr, {mergeable: prData.data.mergeable});
       })
   }
 
