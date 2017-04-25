@@ -13,7 +13,10 @@ class PRHandler {
   rebasePR(pr) {
     return spawn('bash', [`${this.config.baseDir}/rebase.sh`, pr.baseBranch, pr.headBranch], { capture: [ 'stdout', 'stderr' ]}).then(result => {
       // LOG to console
-      console.log(result.stdout.toString())
+      // TODO
+      // console.log(result.stdout.toString())
+      // TODO
+      // console.error(result.stderr.toString())
       this._cacheHandledPR(pr)
       return pr;
     })
@@ -32,19 +35,22 @@ class PRHandler {
     const records = jsonfile.readFileSync(this.config.notificationsFile, {throws: false}) || {};
 
     if (!this.needsRebase(pr)) {
-      console.log('Already notified, do nothing');
+      // TODO
+      // console.log('Already notified, do nothing');
       return pr
     } else {
       const message = `Hey @${this.config.slack.getSlackNick(pr.author)}, PR <${pr.url}|#${pr.number} (${pr.headBranch})> is out of date and can't be automatically rebased`;
 
       return this.config.slack.postToSlack(message)
         .then(() => {
-          console.log(`Notified on Slack that branch ${pr.headBranch} is out of date and can't be automatically rebased`);
+          // TODO
+          // console.log(`Notified on Slack that branch ${pr.headBranch} is out of date and can't be automatically rebased`);
           this._cacheHandledPR(pr)
           return pr
         })
         .catch(() => {
-          console.log(`Slack notification for branch ${pr.headBranch} failed`);
+          // TODO
+          // console.log(`Slack notification for branch ${pr.headBranch} failed`);
         })
     }
   }
